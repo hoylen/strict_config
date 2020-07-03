@@ -1,4 +1,5 @@
 #!/usr/bin/env dart
+
 ///
 ///
 /// Converts any strict_config config into JSON.
@@ -305,7 +306,7 @@ void main(List<String> args) {
       help = true;
     } else {
       if (args.length == 1) {
-          filename = args[0];
+        filename = args[0];
       } else if (args.length == 2) {
         if (args[0] == '-r' || args[0] == '--reverse') {
           reverse = true;

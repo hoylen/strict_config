@@ -52,39 +52,39 @@ class ExampleConfig2 {
 
   //----------------
 
-  void _extractValues(ConfigMap map) {
-    name = map.string('name');
-    desc = map.stringOptional('description', keepWhitespace: true);
-    server = ServerConfig(map.map('server'));
+  void _extractValues(ConfigMap m) {
+    name = m.string('name');
+    desc = m.stringOptional('description', keepWhitespace: true);
+    server = ServerConfig(m.map('server'));
 
     // The "debug" and "max-retries" does not have to be provided in the
     // config, since the _defaultValue_ makes them always have a value.
 
-    debug = map.boolean('debug', defaultValue: false);
-    maxRetries = map.integer('max-retries', min: 1, max: 16, defaultValue: 3);
+    debug = m.boolean('debug', defaultValue: false);
+    maxRetries = m.integer('max-retries', min: 1, max: 16, defaultValue: 3);
 
     // Optional items (will support non-null Dart in a future release)
 
-    paths = map.stringsOptional('paths');
+    paths = m.stringsOptional('paths');
 
     // Nest configuration items using config maps as values
 
-    final _accountMap = map.mapOptional('account');
+    final _accountMap = m.mapOptional('account');
     if (_accountMap != null) {
       account = AccountConfig(_accountMap);
     }
 
     // Extract logger levels and use them to setup logging
 
-    _setupLogging(map);
+    _setupLogging(m);
 
-    map.unusedKeysCheck(); // throws exception if extra keys exist in config
+    m.unusedKeysCheck(); // throws exception if extra keys exist in config
   }
 
   //----------------
 
-  void _setupLogging(ConfigMap map) {
-    final levels = LoggerConfig.optional(map); // default key = 'logger'
+  void _setupLogging(ConfigMap m) {
+    final levels = LoggerConfig.optional(m); // default key = 'logger'
     if (levels != null) {
       hierarchicalLoggingEnabled = true;
       Logger.root.onRecord.listen((LogRecord r) {
@@ -101,12 +101,11 @@ class ExampleConfig2 {
 //----------------------------------------------------------------
 
 class ServerConfig {
-  ServerConfig(ConfigMap map) {
-    host = map.string('host');
-    tls = map.boolean('tls', defaultValue: true);
-    port =
-        map.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
-    map.unusedKeysCheck();
+  ServerConfig(ConfigMap m) {
+    host = m.string('host');
+    tls = m.boolean('tls', defaultValue: true);
+    port = m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
+    m.unusedKeysCheck();
   }
 
   String host;
@@ -118,10 +117,10 @@ class ServerConfig {
 /// Account config.
 
 class AccountConfig {
-  AccountConfig(ConfigMap map) {
+  AccountConfig(ConfigMap m) {
     // Mandatory
 
-    username = map.string('username');
+    username = m.string('username');
 
     // Optional password
     //
@@ -129,17 +128,17 @@ class AccountConfig {
     // values (made up entirely of whitespace) and empty values (zero length
     // string) -- not very secure!
 
-    password = map.stringOptional('password',
+    password = m.stringOptional('password',
         keepWhitespace: true, allowBlank: true, allowEmpty: true);
 
     // Only the permitted values are allowed. A default can also be provided,
     // as long as it is one of the permitted values.
 
-    security = map.string('two-factor',
+    security = m.string('two-factor',
         permitted: ['none', 'challenge-response', 'token'],
         defaultValue: 'none');
 
-    map.unusedKeysCheck();
+    m.unusedKeysCheck();
   }
 
   String username;

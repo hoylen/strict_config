@@ -640,7 +640,7 @@ class ConfigMap {
   /// ### Range checking
   ///
   /// If either, or both, [min] and [max] are provided, range checking is
-  /// performed on the every value in the list. If the value is smaller than
+  /// performed on the every value in the list. If any value is smaller than
   /// _min_ or larger than _max_, a [ConfigExceptionValue] is thrown.
 
   List<int> integers(String key,

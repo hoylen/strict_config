@@ -6,11 +6,11 @@ import 'dart:io';
 import 'package:strict_config/strict_config.dart';
 
 class ExampleConfig {
-  ExampleConfig(ConfigMap map) {
-    name = map.string('name');
-    desc = map.stringOptional('description', keepWhitespace: true);
-    server = ServerConfig(map.map('server'));
-    map.unusedKeysCheck();
+  ExampleConfig(ConfigMap m) {
+    name = m.string('name');
+    desc = m.stringOptional('description', keepWhitespace: true);
+    server = ServerConfig(m.map('server'));
+    m.unusedKeysCheck();
   }
 
   String name;
@@ -19,12 +19,11 @@ class ExampleConfig {
 }
 
 class ServerConfig {
-  ServerConfig(ConfigMap map) {
-    host = map.string('host');
-    tls = map.boolean('tls', defaultValue: true);
-    port =
-        map.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
-    map.unusedKeysCheck();
+  ServerConfig(ConfigMap m) {
+    host = m.string('host');
+    tls = m.boolean('tls', defaultValue: true);
+    port = m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
+    m.unusedKeysCheck();
   }
 
   String host;

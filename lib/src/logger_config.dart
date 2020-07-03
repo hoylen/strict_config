@@ -110,7 +110,6 @@ class LoggerConfig {
           throw ConfigExceptionValue(
               'level unknown ("$name")', map.path, k, name);
         }
-
       } else if (type == ConfigType.integer) {
         // Numeric level
 
@@ -201,8 +200,6 @@ class LoggerConfig {
   static LoggerConfig optional(ConfigMap parentMap,
       {String key = recommendedKey}) {
     final childMap = parentMap.mapOptional(key);
-    return childMap != null
-        ? LoggerConfig(childMap)
-        : null;
+    return childMap != null ? LoggerConfig(childMap) : null;
   }
 }
