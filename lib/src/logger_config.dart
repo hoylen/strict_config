@@ -82,18 +82,12 @@ class LoggerConfig {
   ///
   /// Extracts logger names and levels from the config [map].
   ///
-  /// If [caseInsensitive] is true, the level names (e.g. "INFO",
-  /// "FINE", "ALL") are treated case insensitively. The default is false,
-  /// which means they must appear all capitalized, otherwise they will be
-  /// rejected.
-  ///
   /// The named levels are the same as those defined by the _logging_ package:
   /// ALL, FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE, SHOUT and OFF.
   ///
-  /// Note: the logger names (the keys) are always case sensitive. Only the
-  /// level names are affected by the _caseInsensitive_ parameter.
+  /// The logger names and the levels are both case-sensitive.
 
-  LoggerConfig(ConfigMap map, {bool caseInsensitive = false}) {
+  LoggerConfig(ConfigMap map) {
     for (final k in map.keys()) {
       assert(!levels.containsKey(k), 'duplicate should never happen');
 
@@ -106,12 +100,17 @@ class LoggerConfig {
       if (type == ConfigType.string) {
         // Named level
 
-        final str = map.string(k);
-        level = _predefinedLevels[caseInsensitive ? str.toUpperCase() : str];
-        if (level == null) {
+        final name = map.string(k);
+
+        // Look in [Level.LEVELS] to find a level that matches the name
+
+        try {
+          level = Level.LEVELS.firstWhere((x) => x.name == name);
+        } on StateError {
           throw ConfigExceptionValue(
-              'level unknown ("$str")', map.path, k, str);
+              'level unknown ("$name")', map.path, k, name);
         }
+
       } else if (type == ConfigType.integer) {
         // Numeric level
 
@@ -131,7 +130,7 @@ class LoggerConfig {
           // way allows a customised error message to be produced.
         }
 
-        level = Level('custom_$num', num);
+        level = Level('CUSTOM_$num', num);
       } else {
         // Neither a string nor an integer
         throw ConfigExceptionKey('level not a string or integer', map.path, k);
@@ -147,27 +146,12 @@ class LoggerConfig {
   //================================================================
   // Static members
 
-  /// Permitted names of the levels and the values they represent.
-
-  static final _predefinedLevels = <String, Level>{
-    'OFF': Level.OFF,
-    'SHOUT': Level.SHOUT,
-    'SEVERE': Level.SEVERE,
-    'WARNING': Level.WARNING,
-    'INFO': Level.INFO,
-    'CONFIG': Level.CONFIG,
-    'FINE': Level.FINE,
-    'FINER': Level.FINER,
-    'FINEST': Level.FINEST,
-    'ALL': Level.ALL,
-  };
-
   /// Recommended key for the config map containing the levels.
   ///
   /// The configuration of the loggers usually appear at the top-level of the
   /// config. This key is recommended, because it is the default used by the
   /// convenience method [optional] and it promotes consistency between
-  /// differnt programs and configs.
+  /// different programs and configs.
 
   static const String recommendedKey = 'logger';
 
@@ -208,23 +192,17 @@ class LoggerConfig {
   /// LoggerConfig is created from it and returned. If it does not exist, null
   /// is returned.
   ///
-  /// If [caseInsensitive] is true, the level names (e.g. "INFO",
-  /// "FINE", "ALL") are treated case insensitively. The default is false,
-  /// which means they must appear all capitalized, otherwise they will be
-  /// rejected.
-  ///
   /// The named levels are the same as those defined by the _logging_ package:
   /// ALL, FINEST, FINER, FINE, CONFIG, INFO, WARNING, SEVERE, SHOUT and OFF.
   ///
-  /// Note: the logger names (the keys) are always case sensitive. Only the
-  /// level names are affected by the _caseInsensitive_ parameter.
+  /// The logger names and the levels are both case-sensitive.
 
   // ignore: prefer_constructors_over_static_methods
   static LoggerConfig optional(ConfigMap parentMap,
-      {String key = recommendedKey, bool caseInsensitive = false}) {
+      {String key = recommendedKey}) {
     final childMap = parentMap.mapOptional(key);
     return childMap != null
-        ? LoggerConfig(childMap, caseInsensitive: caseInsensitive)
+        ? LoggerConfig(childMap)
         : null;
   }
 }

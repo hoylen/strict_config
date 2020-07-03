@@ -2,21 +2,20 @@ Package for extracting values from a config.
 
 ## Features
 
-- Built-in validation to improve error checking:
-    - Configuration items can be mandatory or optional.
-    - Detects unexpected configuration items.
-    - String values trimmed of leading and trailing whitespace by default.
-    - Empty and blank string values are rejected by default.
-    - Maximum and/or minimum ranges can be specified for integer values.
-    - Permitted values can be specified to restrict string values.
-    - Default values can be specified for boolean, integer and string values.
-    - Empty lists can be prohibited.
-    
-- Configs can contain logging levels to make using the _logging_
-  package easier.
+- Built-in validation for error checking:
+    - Detects missing mandatory values.
+    - Optional scalar values can be assigned default values.
+    - Maximum and/or minimum limits can be specified for integer values.
+    - Permitted strings can be specified to restrict possible string values.
+    - Leading and trailing whitespace in strings removed by default.
+    - Multiple whitespace in strings replaced with a single space by default.
+    - Empty and blank strings rejected by default.
+    - List values that are empty can be prohibited.
+    - Unexpected values in the config can be detected.
 
-- Does not use annotations to allow programs to be compiled with
-  _dart2native_.
+- Configs can contain logging levels for use with the Dart _logging_ package.
+
+- Does not use Dart annotations, so programs can be compiled with _dart2native_.
   
 ## Example
 
@@ -141,4 +140,4 @@ A subset of YAML is used as the syntax of a _config_.
 
 Please file feature requests and bugs at the [issue tracker][tracker].
 
-[tracker]: https://github.com/hoylen/strict_config
+[tracker]: https://github.com/hoylen/strict_config/issues

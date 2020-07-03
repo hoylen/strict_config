@@ -1,5 +1,5 @@
 #!/usr/bin/env dart
-
+///
 ///
 /// Converts any strict_config config into JSON.
 ///
@@ -33,14 +33,14 @@ String configToJson(String text) {
   final cfg = ConfigMap(text);
 
   final buf = StringBuffer();
-  mapToJson(cfg, buf);
+  configMapToJson(cfg, buf);
 
   return buf.toString();
 }
 
 //----------------------------------------------------------------
 
-void mapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
+void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
   out.write('\{\n');
 
   final keys = cfg.keys();
@@ -50,7 +50,7 @@ void mapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
     for (final k in keys) {
       count++;
 
-      out.write('${_indent * level}${encodeString(k)}: ');
+      out.write('${_indent * level}${jsonString(k)}: ');
 
       switch (cfg.type(k)) {
         case ConfigType.unavailable:
@@ -66,11 +66,11 @@ void mapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
           break;
 
         case ConfigType.string:
-          out.write('${encodeString(cfg.string(k))}');
+          out.write('${jsonString(cfg.string(k))}');
           break;
 
         case ConfigType.map:
-          mapToJson(cfg.map(k), out, level: level + 1);
+          configMapToJson(cfg.map(k), out, level: level + 1);
           break;
 
         case ConfigType.booleans:
@@ -110,7 +110,7 @@ void mapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
             } else {
               out.write(', ');
             }
-            out.write(encodeString(element));
+            out.write(jsonString(element));
           }
           out.write(' ]');
           break;
@@ -125,7 +125,7 @@ void mapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
             } else {
               out.write(',\n');
             }
-            mapToJson(element, out, level: level + 1);
+            configMapToJson(element, out, level: level + 1);
           }
           out.write('\n]');
           break;
@@ -147,7 +147,7 @@ void mapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
 
 //----------------------------------------------------------------
 
-String encodeString(String str) {
+String jsonString(String str) {
   final encoded = str
       .replaceAll('"', r'\"')
       .replaceAll(r'\', r'\\')
@@ -183,7 +183,7 @@ String jsonToConfig(String text) {
 
   if (data is Map) {
     final buf = StringBuffer();
-    mapToConfig(data, buf);
+    jsonObjectToConfig(data, buf);
     return buf.toString();
   } else {
     throw NotRepresentableAsConfig('not a JSON object');
@@ -192,20 +192,97 @@ String jsonToConfig(String text) {
 
 //----------------------------------------------------------------
 
-void mapToConfig(Map<String, dynamic> m, StringSink out, {int level = 1}) {
+void jsonObjectToConfig(Map<String, dynamic> m, StringSink out,
+    {int level = 0}) {
+  final topLevel = level == 0;
+
   final keys = m.keys;
 
+  if (!topLevel) {
+    out.write('\n');
+  }
+
+  var previousWasMap = false;
   var count = 0;
   for (final k in keys) {
     count++;
+    final value = m[k];
 
-    out.write('${_indent * level}${encodeString(k)}: ');
+    out.write((topLevel && value is Map && !previousWasMap) ? '\n' : '');
 
-    // Output comma between members, but not after the last member.
+    out.write('${_indent * level}${yamlString(k)}: '); // name
+    jsonValueToConfig(value, out, level);
 
-    out.write(count < keys.length ? ',\n' : '\n');
+    out.write((topLevel && value is Map) ? '\n' : '');
 
-    throw UnimplementedError(); // TODO: finish implementing this
+    out.write((count != keys.length) ? '\n' : '');
+
+    previousWasMap = value is Map;
+  }
+}
+
+//----------------------------------------------------------------
+
+void jsonValueToConfig(Object value, StringSink out, int level) {
+  if (value is bool) {
+    out.write(value ? 'true' : 'false');
+  } else if (value is int) {
+    out.write(value);
+  } else if (value is String) {
+    out.write(yamlString(value));
+  } else if (value is Map) {
+    jsonObjectToConfig(value, out, level: level + 1);
+  } else if (value is List) {
+    if (value.isEmpty) {
+      out.write('[]'); // empty list
+    } else {
+      _checkListIsUniform(value);
+      out.write('[ ');
+      var count = 0;
+      for (final element in value) {
+        count++;
+        jsonValueToConfig(element, out, level);
+        out.write(count != value.length ? ', ' : '');
+      }
+      out.write(' ]');
+    }
+  } else {
+    NotRepresentableAsConfig('type = ${value.runtimeType}');
+  }
+}
+
+//----------------------------------------------------------------
+
+String yamlString(String str, {bool alwaysQuote = false}) {
+  // Quote the string if requested, or the value is "safe".
+  // The "safe" rule can be expanded to be less limiting, but currently it is
+  // conservative and only considers strings are safe if:
+  // - they start with a letter or underscore and only contains letters, digits
+  //   underscores and hyphens.
+  final quote =
+      alwaysQuote || !RegExp(r'^[A-Za-z_][0-9A-Za-z_-]*$').hasMatch(str);
+
+  final encoded = str
+      .replaceAll('"', r'\"')
+      .replaceAll(r'\', r'\\')
+      .replaceAll(r'/', r'\/')
+      .replaceAll('\b', r'\b')
+      .replaceAll('\f', r'\f')
+      .replaceAll('\n', r'\n')
+      .replaceAll('\r', r'\r')
+      .replaceAll('\t', r'\t');
+  // Could also replace non-printable ASCII characters with \u and 4 hex digits.
+
+  return quote ? '"$encoded"' : encoded;
+}
+
+void _checkListIsUniform(List list) {
+  final type = list.first.runtimeType;
+
+  for (final element in list) {
+    if (element.runtimeType != type) {
+      throw NotRepresentableAsConfig('list has mixed types');
+    }
   }
 }
 
@@ -223,37 +300,39 @@ void main(List<String> args) {
   if (args.isEmpty) {
     stderr.write('Usage error: missing filename (-h for help)\n');
     exit(2);
-  } else if (args.length == 1) {
-    if (args[0] == '-h' || args[0] == '--help') {
-      help = true;
-    } else {
-      filename = args[0];
-    }
-  } else if (args.length == 2) {
-    if (args[0] == '-h' ||
-        args[0] == '--help' ||
-        args[1] == '-h' ||
-        args[1] == '--help') {
-      help = true;
-    }
-    if (args[0] == '-r' || args[0] == '--reverse') {
-      reverse = true;
-      filename = args[1];
-    } else {
-      stderr.write('Usage error: unexpected argument (-h for help)\n');
-      exit(2);
-    }
   } else {
-    stderr.write('Usage error: too many arguments (-h for help)\n');
-    exit(2);
+    if (args.contains('-h') || args.contains('--help')) {
+      help = true;
+    } else {
+      if (args.length == 1) {
+          filename = args[0];
+      } else if (args.length == 2) {
+        if (args[0] == '-r' || args[0] == '--reverse') {
+          reverse = true;
+          filename = args[1];
+        } else if (args[1] == '-r' || args[1] == '--reverse') {
+          reverse = true;
+          filename = args[0];
+        } else {
+          stderr.write('Usage error: unexpected argument (-h for help)\n');
+          exit(2);
+        }
+      } else {
+        stderr.write('Usage error: too many arguments (-h for help)\n');
+        exit(2);
+      }
+    }
   }
 
   if (help) {
     stdout.write('''
 Usage: $exeName [options] filename
 Options:
-  -r | --reverse  convert JSON to strict_config config
+  -r | --reverse  convert JSON to strict_config config *
   -h | --help     show help
+
+* Not all JSON can be represented as strict_config configs.
+  The config data model is a subset of the JSON data model.
 ''');
     exit(0);
   }

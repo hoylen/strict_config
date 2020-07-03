@@ -3,10 +3,6 @@ import 'package:test/test.dart';
 
 //================================================================
 
-final badFormat = throwsA(TypeMatcher<ConfigExceptionFormat>());
-
-final missingKey = throwsA(TypeMatcher<ConfigExceptionKeyMissing>());
-
 final badValue = throwsA(TypeMatcher<ConfigExceptionValue>());
 
 //================================================================

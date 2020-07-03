@@ -8,6 +8,8 @@
 
 library strict_config;
 
+import 'dart:io';
+
 import 'package:logging/logging.dart';
 import 'package:yaml/yaml.dart';
 
