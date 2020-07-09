@@ -67,7 +67,9 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
           break;
 
         case ConfigType.string:
-          out.write('${jsonString(cfg.string(k))}');
+          final s = cfg.string(k,
+              keepWhitespace: true, allowEmpty: true, allowBlank: true);
+          out.write(jsonString(s));
           break;
 
         case ConfigType.map:
@@ -77,7 +79,7 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.booleans:
           out.write('[ ');
           var first = true;
-          for (final element in cfg.booleans(k)) {
+          for (final element in cfg.booleans(k, allowEmptyList: true)) {
             if (first) {
               first = false;
             } else {
@@ -91,7 +93,7 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.integers:
           out.write('[ ');
           var first = true;
-          for (final element in cfg.integers(k)) {
+          for (final element in cfg.integers(k, allowEmptyList: true)) {
             if (first) {
               first = false;
             } else {
@@ -105,7 +107,11 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.strings:
           out.write('[ ');
           var first = true;
-          for (final element in cfg.strings(k)) {
+          for (final element in cfg.strings(k,
+              allowEmptyList: true,
+              keepWhitespace: true,
+              allowEmpty: true,
+              allowBlank: true)) {
             if (first) {
               first = false;
             } else {
@@ -119,16 +125,17 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.maps:
           out.write('[');
           var first = true;
-          for (final element in cfg.maps(k)) {
+          for (final element in cfg.maps(k, allowEmptyList: true)) {
             if (first) {
               first = false;
               out.write('\n');
             } else {
               out.write(',\n');
             }
-            configMapToJson(element, out, level: level + 1);
+            out.write(_indent * (level + 1)); // indentation for opening "{"
+            configMapToJson(element, out, level: level + 2);
           }
-          out.write('\n]');
+          out.write('\n${_indent * level}]');
           break;
 
         case ConfigType.unknownList:

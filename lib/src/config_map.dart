@@ -326,7 +326,7 @@ class ConfigMap {
   ///
   /// To allow the key to be missing, use the [stringOptional] method.
   ///
-  /// ### Default value
+  /// ## Default value
   ///
   ///
   /// When a _defaultValue_ is provided a value is always returned. So while the
@@ -366,7 +366,7 @@ class ConfigMap {
   /// returned value, even if they appear in the string values in the config.
   /// They are always automatically removed, even if _keepWhitespace_ is true.
   ///
-  /// ### Restricting values
+  /// ## Restricting values
   ///
   /// The default behaviour allows any string value (as long as it satisfies
   /// the whitespace rules).

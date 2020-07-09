@@ -3,17 +3,17 @@ Package for extracting values from a config.
 ## Features
 
 - Built-in validation for error checking:
-    - Detects missing mandatory values.
+    - Detects missing mandatory items.
     - Optional scalar values can be assigned default values.
     - Maximum and/or minimum limits can be specified for integer values.
     - Permitted strings can be specified to restrict possible string values.
     - Leading and trailing whitespace in strings removed by default.
     - Multiple whitespace in strings replaced with a single space by default.
     - Empty and blank strings rejected by default.
-    - List values that are empty can be prohibited.
-    - Unexpected values in the config can be detected.
+    - Empty list values are accepted by default. Defaults can be changed.
+    - Unexpected items in the config can be detected.
 
-- Configs can contain logging levels for use with the Dart _logging_ package.
+- Configs can contain logger levels for use with the Dart _logging_ package.
 
 - Does not use Dart annotations, so programs can be compiled with _dart2native_.
   
