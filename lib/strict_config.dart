@@ -2,13 +2,11 @@
 ///
 /// Use the [ConfigMap] class to parse config text and extract values from it.
 ///
-/// The [LoggerConfig] class extracts logger levels from a _ConfigMap_, and use them
-/// to setup loggers with the _logging_ package. This allows loggers to be
+/// The [LoggerConfig] class extracts logger levels from a _ConfigMap_, and use
+/// them to setup loggers with the _logging_ package. This allows loggers to be
 /// controlled through a config, instead of with hard-coded levels.
 
 library strict_config;
-
-import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:yaml/yaml.dart';
