@@ -134,7 +134,6 @@ class LoggerConfig {
         // Neither a string nor an integer
         throw ConfigExceptionKey('level not a string or integer', map.path, k);
       }
-      assert(level != null);
 
       // Store the level
 
@@ -197,7 +196,7 @@ class LoggerConfig {
   /// The logger names and the levels are both case-sensitive.
 
   // ignore: prefer_constructors_over_static_methods
-  static LoggerConfig optional(ConfigMap parentMap,
+  static LoggerConfig? optional(ConfigMap parentMap,
       {String key = recommendedKey}) {
     final childMap = parentMap.mapOptional(key);
     return childMap != null ? LoggerConfig(childMap) : null;

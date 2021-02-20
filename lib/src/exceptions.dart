@@ -42,7 +42,7 @@ class ConfigExceptionKey extends ConfigException {
   final String path;
 
   @override
-  String toString() => '$message: ${path != null ? '$path/' : ''}$key';
+  String toString() => '$message: ${path.isEmpty ? '' : '$path/'}$key';
 }
 
 //################################################################

@@ -1,5 +1,4 @@
 #!/usr/bin/env dart
-
 // Example from the README.
 
 import 'dart:io';
@@ -13,18 +12,23 @@ class ExampleConfig {
     m.unusedKeysCheck();
   }
 
-  String name;
-  String desc;
-  ServerConfig server;
+  late String name;
+  String? desc; // optional
+  late ServerConfig server;
 }
 
 class ServerConfig {
-  ServerConfig(ConfigMap m) {
-    host = m.string('host');
-    tls = m.boolean('tls', defaultValue: true);
-    port = m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
+  factory ServerConfig(ConfigMap m) {
+    final _host = m.string('host');
+    final _tls = m.boolean('tls', defaultValue: true);
+    final _port =
+        m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
     m.unusedKeysCheck();
+
+    return ServerConfig._init(_host, _tls, _port);
   }
+
+  ServerConfig._init(this.host, this.tls, this.port);
 
   String host;
   bool tls;

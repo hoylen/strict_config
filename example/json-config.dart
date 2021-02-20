@@ -189,7 +189,7 @@ class NotRepresentableAsConfig implements Exception {
 String jsonToConfig(String text) {
   final data = jsonDecode(text);
 
-  if (data is Map) {
+  if (data is Map<String,dynamic>) {
     final buf = StringBuffer();
     jsonObjectToConfig(data, buf);
     return buf.toString();
@@ -238,7 +238,7 @@ void jsonValueToConfig(Object value, StringSink out, int level) {
     out.write(value);
   } else if (value is String) {
     out.write(yamlString(value));
-  } else if (value is Map) {
+  } else if (value is Map<String,dynamic>) {
     jsonObjectToConfig(value, out, level: level + 1);
   } else if (value is List) {
     if (value.isEmpty) {
@@ -301,7 +301,7 @@ void main(List<String> args) {
 
   // Process command line
 
-  String filename;
+  late String filename;
   var reverse = false;
   var help = false;
 

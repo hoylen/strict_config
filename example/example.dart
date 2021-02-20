@@ -84,15 +84,15 @@ class ExampleConfig2 {
 
   //----------------
 
-  String name;
-  String desc; // optional, so it maybe null
-  ServerConfig server;
+  late String name;
+  String? desc; // optional, so it maybe null
+  late ServerConfig server;
 
-  int minDaysToExpiry;
-  bool ignoreBadCert;
-  List<String> pathSegments; // optional
-  AccountConfig account; // optional
-  List<HeaderConfig> headers; // optional
+  late int minDaysToExpiry;
+  late bool ignoreBadCert;
+  List<String>? pathSegments; // optional
+  AccountConfig? account; // optional
+  late List<HeaderConfig> headers; // optional, empty list if not present
 
 
   //----------------
@@ -118,12 +118,16 @@ class ExampleConfig2 {
 //----------------------------------------------------------------
 
 class ServerConfig {
-  ServerConfig(ConfigMap m) {
-    host = m.string('host');
-    tls = m.boolean('tls', defaultValue: true);
-    port = m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
+  factory ServerConfig(ConfigMap m) {
+    final _host = m.string('host');
+    final _tls = m.boolean('tls', defaultValue: true);
+    final _port = m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
     m.unusedKeysCheck();
+
+    return ServerConfig._init(_host, _tls, _port);
   }
+
+  ServerConfig._init(this.host, this.tls, this.port);
 
   String host;
   bool tls;
@@ -179,8 +183,7 @@ class AccountConfig {
     //
     // The config map keeps track of the keys passed to the extraction methods,
     // so it knows "username", "password" and "two-factor" are expected keys.
-    // Anything other keys in the config map will cause an exception to be
-    // thrown.
+    // Any other keys in the config map will cause an exception to be thrown.
     //
     // This can be useful for users. For example, if they have mistyped the name
     // of a key, they will know it is an error instead of wondering why the
@@ -189,9 +192,9 @@ class AccountConfig {
     m.unusedKeysCheck();
   }
 
-  String username;
-  String password; // optional: could be null
-  String scheme; // optional, but will always have a value
+  late String username;
+  String? password; // optional: could be null
+  String? scheme; // optional, but will always have a value
 }
 
 //----------------------------------------------------------------
@@ -205,13 +208,16 @@ class HeaderConfig {
     m.unusedKeysCheck();
   }
 
-  String name;
-  String value;
+  late String name;
+  String? value; // optional
 
   @override
   String toString() => '$name: $value';
 
   /// Convenience method for extracting an optional list of HeaderConfigs.
+  ///
+  /// Always returns a list. If the configs are not present, the empty list
+  /// is returned.
 
   static List<HeaderConfig> mapsOptional(String name, ConfigMap parentMap) {
     // Since allowEmptyList defaults to true, this could return null or
@@ -234,7 +240,9 @@ class HeaderConfig {
 
 //================================================================
 
-Future<String> checkResource(ExampleConfig2 config) async {
+// The future is null on success, or a string on error.
+
+Future<String?> checkResource(ExampleConfig2 config) async {
   final uri = Uri(
       scheme: config.server.tls ? 'https' : 'http',
       host: config.server.host,
@@ -251,18 +259,19 @@ Future<String> checkResource(ExampleConfig2 config) async {
         ((X509Certificate cert, String host, int port) => true);
   }
 
-  if (config.account != null) {
+  final account = config.account;
+  if (account != null) {
     client.authenticate = (Uri url, String scheme, String realm) async {
-      if (scheme == config.account.scheme) {
-        HttpClientCredentials cred;
+      if (scheme == account.scheme) {
+        late HttpClientCredentials cred;
+
         if (scheme == 'Basic') {
           cred = HttpClientBasicCredentials(
-              config.account.username, config.account.password);
+              account.username, account.password ?? '');
         } else if (scheme == 'Digest') {
           cred = HttpClientDigestCredentials(
-              config.account.username, config.account.password);
+              account.username, account.password ?? '');
         }
-        assert(cred != null);
 
         client.addCredentials(url, realm, cred);
         return true;
@@ -278,17 +287,17 @@ Future<String> checkResource(ExampleConfig2 config) async {
 
     final req = await client.getUrl(uri);
     for (final h in config.headers) {
-      req.headers.add(h.name, h.value);
+      req.headers.add(h.name, h.value ?? '');
     }
 
     // Get response
 
     final resp = await req.close();
     try {
-      if (resp.certificate != null) {
+      final cert = resp.certificate;
+      if (cert != null) {
         // TLS server certificate
 
-        final cert = resp.certificate;
         _logCert.fine('Server cert subject: ${cert.subject}');
         _logCert.finest('Server cert issuer: ${cert.issuer}');
         _logCert.finer('Server cert start validity: ${cert.startValidity}');
@@ -415,16 +424,16 @@ void logConfig(String configFilename, ExampleConfig2 config) {
     _logConfig.finest('path segments: none');
   }
 
-  if (config.account != null) {
+  final acc = config.account;
+  if (acc != null) {
     // Optional account is available
-    final acc = config.account;
     final p =
     acc.password != null ? 'password is provided' : 'prompt for password';
     _logConfig.finest('account: ${acc.username} [${acc.scheme}] $p');
-    if (acc.password != null && acc.password.length < 10) {
+    if (acc.password != null && acc.password!.length < 10) {
       _logConfig.warning('password is insecure: it is too short');
     }
-    if (acc.password != null && acc.password.isEmpty) {
+    if (acc.password != null && acc.password!.isEmpty) {
       _logConfig.severe('password is very insecure: it is the empty string');
     }
   }

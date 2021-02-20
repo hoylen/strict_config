@@ -45,18 +45,23 @@ class ExampleConfig {
     m.unusedKeysCheck();
   }
 
-  String name;
-  String desc;
-  ServerConfig server;
+  late String name;
+  String? desc; // optional
+  late ServerConfig server;
 }
 
 class ServerConfig {
-  ServerConfig(ConfigMap m) {
-    host = m.string('host');
-    tls = m.boolean('tls', defaultValue: true);
-    port = m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
+  factory ServerConfig(ConfigMap m) {
+    final _host = m.string('host');
+    final _tls = m.boolean('tls', defaultValue: true);
+    final _port =
+        m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
     m.unusedKeysCheck();
+
+    return ServerConfig._init(_host, _tls, _port);
   }
+
+  ServerConfig._init(this.host, this.tls, this.port);
 
   String host;
   bool tls;
@@ -89,6 +94,12 @@ void main(List<String> args) {
   }
 }
 ```
+
+The above example demonstrates two conventions for dealing with null
+safety. The _ExampleConfig_ class uses `late` non-nullable members for
+mandatory items, and nullable members for optional items.  The
+_ServerConfig_ class uses a factory constructor, so all mandatory
+members are non-nullable (and don't need to be _late_).
 
 ## Usage
 
