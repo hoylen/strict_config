@@ -1,6 +1,6 @@
 name: strict_config
 description: Configuration parser with error checking, validation and logging config support.
-version: 2.0.0
+version: 2.0.1
 homepage: https://github.com/hoylen/strict_config
 
 environment:

@@ -107,11 +107,9 @@ class ConfigMap {
       if (doc is YamlMap) {
         // text contains a YAML map
         return ConfigMap._fromYamlMap('', doc);
-
       } else if (doc == null) {
         // no YAML data in text: treat as empty map
         return ConfigMap._fromYamlMap('', YamlMap());
-
       } else {
         throw ConfigExceptionFormat('top-level of config is not a map');
         // e.g. if the text only contains a single integer: it is valid YAML,
@@ -218,7 +216,8 @@ class ConfigMap {
   ///
   /// Note: this will return `bool?` once non-nullable Dart is available.
 
-  bool? booleanOptional(String key) => _boolean(key, optional: true, defaultValue: null);
+  bool? booleanOptional(String key) =>
+      _boolean(key, optional: true, defaultValue: null);
 
   //----------------
   /// Internal implementation for [boolean] and [booleanOptional].
@@ -266,8 +265,9 @@ class ConfigMap {
   /// performed on the value. If the value is smaller than _min_ or larger
   /// than _max_, a [ConfigExceptionValue] is thrown.
 
-  int integer(String key, {int? defaultValue, int? min, int? max}) => _integer(key,
-      defaultValue: defaultValue, min: min, max: max, optional: false)!;
+  int integer(String key, {int? defaultValue, int? min, int? max}) =>
+      _integer(key,
+          defaultValue: defaultValue, min: min, max: max, optional: false)!;
 
   //----------------
   /// Extracts an optional integer value.
@@ -486,8 +486,11 @@ class ConfigMap {
   //
   // This method is used by both [_string] and [_stringList].
 
-  String _checkedString(String key, String rawValue, Iterable<String>? permitted,
-      {required bool keepWhitespace, required bool allowEmpty, required bool allowBlank}) {
+  String _checkedString(
+      String key, String rawValue, Iterable<String>? permitted,
+      {required bool keepWhitespace,
+      required bool allowEmpty,
+      required bool allowBlank}) {
     // Tidy whitespace, if requested
 
     final str = keepWhitespace
@@ -603,7 +606,8 @@ class ConfigMap {
   //----------------
   /// Internal implementation for [booleans] and [booleansOptional].
 
-  List<bool>? _listBoolean(String key, {required bool optional, required bool allowEmptyList}) {
+  List<bool>? _listBoolean(String key,
+      {required bool optional, required bool allowEmptyList}) {
     _used.add(key);
 
     final _value = _yamlMap[key];
@@ -682,7 +686,10 @@ class ConfigMap {
   /// Internal implementation for [integers] and [integersOptional].
 
   List<int>? _integerList(String key,
-      {required bool optional, int? min, int? max, required bool allowEmptyList}) {
+      {required bool optional,
+      int? min,
+      int? max,
+      required bool allowEmptyList}) {
     _used.add(key);
 
     final _value = _yamlMap[key];
@@ -791,9 +798,9 @@ class ConfigMap {
   List<String>? _stringList(String key,
       {required bool optional,
       required bool allowEmptyList,
-        required bool keepWhitespace,
-        required bool allowEmpty,
-        required bool allowBlank,
+      required bool keepWhitespace,
+      required bool allowEmpty,
+      required bool allowBlank,
       Iterable<String>? permitted}) {
     _used.add(key);
 
@@ -873,7 +880,8 @@ class ConfigMap {
   //----------------
   /// Internal implementation for [maps] and [mapsOptional].
 
-  List<ConfigMap>? _listMap(String key, {required bool optional, required bool allowEmptyList}) {
+  List<ConfigMap>? _listMap(String key,
+      {required bool optional, required bool allowEmptyList}) {
     _used.add(key);
 
     final _value = _yamlMap[key];

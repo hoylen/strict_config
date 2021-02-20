@@ -1,3 +1,7 @@
+## 2.0.1
+
+- Fixed code formatting.
+
 ## 2.0.0
 
 - Null safety release.
