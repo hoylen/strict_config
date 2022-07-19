@@ -124,7 +124,7 @@ class LoggerConfig {
               'level out of range [${Level.ALL.value}-${Level.OFF.value}]',
               map.path,
               k,
-              num.toString());
+              num);
           // could have passed max and min to `integer`, but doing it this
           // way allows a customised error message to be produced.
         }

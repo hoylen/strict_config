@@ -64,15 +64,38 @@ class ConfigExceptionKeyUnexpected extends ConfigExceptionKey {
 /// Indicates a problem with the value associated with a config item.
 
 class ConfigExceptionValue extends ConfigExceptionKey {
-  ConfigExceptionValue(String message, String path, String key, this.value)
+  ConfigExceptionValue(String message, String path, String key, [this.value])
       : super(message, path, key);
 
-  /// String representation of the value that caused the exception.
+  /// The value that caused the exception.
+  ///
+  /// Null means there is no value to display. For example, this is used when
+  /// the message is sufficient (e.g. an error about an empty string does not
+  /// need to show the empty string value).
 
-  final String value;
+  final Object? value;
 
   @override
-  String toString() => '${super.toString()}: $value';
+  String toString() {
+    String text;
+
+    final v = value;
+    if (v is String) {
+      var str = v
+          .replaceAll('\\', '\\\\')
+          .replaceAll('\t', '\\t')
+          .replaceAll('\n', '\\n')
+          .replaceAll('\r', '\\r')
+          .replaceAll('"', '\\"');
+      text = ': "$str"';
+    } else if (v != null) {
+      text = ': $v';
+    } else {
+      text = '';
+    }
+
+    return '${super.toString()}$text';
+  }
 }
 
 //################################################################
@@ -83,5 +106,5 @@ class ConfigExceptionValue extends ConfigExceptionKey {
 
 class ConfigExceptionValueEmptyList extends ConfigExceptionValue {
   ConfigExceptionValueEmptyList(String path, String key)
-      : super('list is empty', path, key, '[]');
+      : super('list is empty', path, key);
 }

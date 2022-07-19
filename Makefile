@@ -1,14 +1,17 @@
 # Makefile
 
-.PHONY: dartfmt doc test
+.PHONY: format doc test
 
 DOC_DIR=doc/api
+
+PKG_NAME=`awk '/^name:/ { print $$2 }' pubspec.yaml`
+PKG_VERSION=`awk '/^version:/ { print $$2 }' pubspec.yaml`
 
 #----------------------------------------------------------------
 
 help:
-	@echo "Targets for ${APP_NAME} (version ${APP_VERSION}):"
-	@echo "  dartfmt  - formats Dart code consistantly for check-in"
+	@echo "Targets for ${PKG_NAME} (version ${PKG_VERSION}):"
+	@echo "  format   - formats Dart code consistantly for check-in"
 	@echo "  doc      - generate code documentation"
 	@echo "  test     - run tests"
 	@echo
@@ -17,8 +20,8 @@ help:
 #----------------------------------------------------------------
 # Development targets
 
-dartfmt:
-	@dartfmt -w lib example test | grep -v ^Unchanged
+format:
+	@dart format  lib example test
 
 #----------------------------------------------------------------
 # Tests
@@ -30,7 +33,7 @@ test:
 # Documentation
 
 doc:
-	@dartdoc --output "${DOC_DIR}"
+	@dart doc --output-dir "${DOC_DIR}" `pwd`
 	@echo "View Dart documentation by opening: ${DOC_DIR}/index.html"
 
 #----------------------------------------------------------------

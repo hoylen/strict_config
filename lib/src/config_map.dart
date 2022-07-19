@@ -174,7 +174,8 @@ class ConfigMap {
 
   /// Create a [ConfigExceptionValue] populating path from config map.
 
-  ConfigExceptionValue _valueException(String msg, String key, String value) =>
+  ConfigExceptionValue _valueException(String msg, String key,
+          [Object? value]) =>
       ConfigExceptionValue(msg, path, key, value);
 
   /// Create a [ConfigExceptionValueEmptyList] populating path from config map.
@@ -238,7 +239,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('not true or false', key, _value.toString());
+      throw _valueException('not true or false', key, _value);
     }
   }
 
@@ -293,24 +294,22 @@ class ConfigMap {
     // Check default first, even if it won't be used in this instance
 
     if (min != null && defaultValue != null && defaultValue < min) {
-      throw _valueException('default value out of range (minimum is $min)', key,
-          defaultValue.toString());
+      throw _valueException(
+          'default value out of range (minimum is $min)', key, defaultValue);
     }
     if (max != null && defaultValue != null && max < defaultValue) {
-      throw _valueException('default value out of range (maximum is $max)', key,
-          defaultValue.toString());
+      throw _valueException(
+          'default value out of range (maximum is $max)', key, defaultValue);
     }
 
     final _value = _yamlMap[key];
 
     if (_value is int) {
       if (min != null && _value < min) {
-        throw _valueException(
-            'out of range (minimum is $min)', key, _value.toString());
+        throw _valueException('out of range (minimum is $min)', key, _value);
       }
       if (max != null && max < _value) {
-        throw _valueException(
-            'out of range (maximum is $max)', key, _value.toString());
+        throw _valueException('out of range (maximum is $max)', key, _value);
       }
       return _value;
     } else if (_value == null) {
@@ -323,7 +322,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not an integer', key, _value.toString());
+      throw _valueException('value is not an integer', key, _value);
     }
   }
 
@@ -471,7 +470,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not string', key, _rawValue.toString());
+      throw _valueException('value is not string', key, _rawValue);
     }
   }
 
@@ -504,7 +503,7 @@ class ConfigMap {
       if (allowEmpty) {
         return str; // return empty string: ignores any permitted values
       } else {
-        throw _valueException('empty string not permitted', key, str);
+        throw _valueException('empty string not permitted', key);
       }
     } else if (RegExp(r'^[ \t]+$').hasMatch(str)) {
       // Value is blank
@@ -567,7 +566,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a map', key, _value.toString());
+      throw _valueException('value is not a map', key, _value);
     }
   }
 
@@ -620,7 +619,7 @@ class ConfigMap {
           result.add(element);
         } else {
           throw _valueException(
-              'member is not true/false', '$key[$index]', element.toString());
+              'member is not true/false', '$key[$index]', element);
         }
 
         index++;
@@ -637,7 +636,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value.toString());
+      throw _valueException('value is not a list', key, _value);
     }
   }
 
@@ -703,16 +702,15 @@ class ConfigMap {
         if (element is int) {
           if (min != null && element < min) {
             throw _valueException(
-                'out of range (minimum is $min)', elemPath, element.toString());
+                'out of range (minimum is $min)', elemPath, element);
           }
           if (max != null && max < element) {
             throw _valueException(
-                'out of range (maximum is $max)', elemPath, element.toString());
+                'out of range (maximum is $max)', elemPath, element);
           }
           result.add(element);
         } else {
-          throw _valueException(
-              'member is not an integer', elemPath, element.toString());
+          throw _valueException('member is not an integer', elemPath, element);
         }
 
         index++;
@@ -729,7 +727,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value.toString());
+      throw _valueException('value is not a list', key, _value);
     }
   }
 
@@ -824,7 +822,7 @@ class ConfigMap {
           result.add(str);
         } else {
           throw _valueException(
-              'member is not a string', '$key[$index]', _rawValue.toString());
+              'member is not a string', '$key[$index]', _rawValue);
         }
 
         index++;
@@ -842,7 +840,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value.toString());
+      throw _valueException('value is not a list', key, _value);
     }
   }
 
@@ -896,7 +894,7 @@ class ConfigMap {
           result.add(ConfigMap._fromYamlMap(
               (path.isEmpty) ? ek : '$path/$ek', element));
         } else {
-          throw _valueException('member is not a map', ek, element.toString());
+          throw _valueException('member is not a map', ek, element);
         }
 
         index++;
@@ -914,7 +912,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value.toString());
+      throw _valueException('value is not a list', key, _value);
     }
   }
 

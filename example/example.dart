@@ -72,14 +72,14 @@ class ExampleConfig2 {
   /// Extract from a file.
 
   factory ExampleConfig2.fromFile(String configFilename) {
-      // Read text from the file
+    // Read text from the file
 
-      final configText = File(configFilename).readAsStringSync();
+    final configText = File(configFilename).readAsStringSync();
 
-      // Parse and extract values from it
+    // Parse and extract values from it
 
-      final config = ConfigMap(configText);
-      return ExampleConfig2(config);
+    final config = ConfigMap(configText);
+    return ExampleConfig2(config);
   }
 
   //----------------
@@ -93,7 +93,6 @@ class ExampleConfig2 {
   List<String>? pathSegments; // optional
   AccountConfig? account; // optional
   late List<HeaderConfig> headers; // optional, empty list if not present
-
 
   //----------------
   // Extract logger levels from the config map and setup logging.
@@ -121,7 +120,8 @@ class ServerConfig {
   factory ServerConfig(ConfigMap m) {
     final _host = m.string('host');
     final _tls = m.boolean('tls', defaultValue: true);
-    final _port = m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
+    final _port =
+        m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
     m.unusedKeysCheck();
 
     return ServerConfig._init(_host, _tls, _port);
@@ -261,7 +261,7 @@ Future<String?> checkResource(ExampleConfig2 config) async {
 
   final account = config.account;
   if (account != null) {
-    client.authenticate = (Uri url, String scheme, String realm) async {
+    client.authenticate = (Uri url, String scheme, String? realm) async {
       if (scheme == account.scheme) {
         late HttpClientCredentials cred;
 
@@ -273,7 +273,7 @@ Future<String?> checkResource(ExampleConfig2 config) async {
               account.username, account.password ?? '');
         }
 
-        client.addCredentials(url, realm, cred);
+        client.addCredentials(url, realm ?? '', cred);
         return true;
       } else {
         _logRsrc.severe('authentication scheme not supported: $scheme');
@@ -305,9 +305,7 @@ Future<String?> checkResource(ExampleConfig2 config) async {
 
         // Produce alert if will expire soon (or has already expired)
 
-        final daysToExpiry = cert.endValidity
-            .difference(DateTime.now())
-            .inDays;
+        final daysToExpiry = cert.endValidity.difference(DateTime.now()).inDays;
         if (daysToExpiry <= 0) {
           return 'certificate expired';
         }
@@ -346,14 +344,15 @@ Future<String?> checkResource(ExampleConfig2 config) async {
 Future<void> main(List<String> args) async {
   // Simple command line processing
 
-  final prog = Platform.script.pathSegments.last.replaceAll('.dart', '');
+  final exeName = Platform.script.pathSegments.last.replaceAll('.dart', '');
 
   if (args.contains('-h') || args.contains('--help')) {
-    stdout.write('Usage: $prog [-h|--help] [-v|--verbose] configFile\n');
+    stdout.write('Usage: $exeName [-h|--help] [-v|--verbose] configFile\n');
     exit(0);
   }
   final remainingArgs = List<String>.from(args);
-  final verbose = remainingArgs.remove('-v') || remainingArgs.remove('--verbose');
+  final verbose =
+      remainingArgs.remove('-v') || remainingArgs.remove('--verbose');
 
   if (remainingArgs.isEmpty) {
     stderr.write('Usage error: missing config file\n');
@@ -368,8 +367,8 @@ Future<void> main(List<String> args) async {
 
   ExampleConfig2 config;
   try {
-   config = ExampleConfig2.fromFile(configFilename);
-   logConfig(configFilename, config);
+    config = ExampleConfig2.fromFile(configFilename);
+    logConfig(configFilename, config);
   } on ConfigException catch (e) {
     stderr.write('Config error: $configFilename: $e\n');
     exit(1);
@@ -406,7 +405,6 @@ Future<void> main(List<String> args) async {
 /// log entries are outputted.
 
 void logConfig(String configFilename, ExampleConfig2 config) {
-
   _logConfig.config('config file: "$configFilename"');
 
   _logConfig.fine('name="${config.name}"');
@@ -428,7 +426,7 @@ void logConfig(String configFilename, ExampleConfig2 config) {
   if (acc != null) {
     // Optional account is available
     final p =
-    acc.password != null ? 'password is provided' : 'prompt for password';
+        acc.password != null ? 'password is provided' : 'prompt for password';
     _logConfig.finest('account: ${acc.username} [${acc.scheme}] $p');
     if (acc.password != null && acc.password!.length < 10) {
       _logConfig.warning('password is insecure: it is too short');

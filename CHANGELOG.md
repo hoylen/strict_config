@@ -1,3 +1,7 @@
+## 2.1.0
+
+- Improved values in String produced by ConfigExceptionValue.toString().
+
 ## 2.0.1
 
 - Fixed code formatting.
