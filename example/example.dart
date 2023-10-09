@@ -43,9 +43,9 @@ class ExampleConfig2 {
     // The account config map is optional, so it may return null.
     // If it is present, extract values from it into an `AccountConfig` object.
 
-    final _accountMap = m.mapOptional('account');
-    if (_accountMap != null) {
-      account = AccountConfig(_accountMap);
+    final accountMap = m.mapOptional('account');
+    if (accountMap != null) {
+      account = AccountConfig(accountMap);
     }
 
     // List of config maps.
@@ -103,7 +103,7 @@ class ExampleConfig2 {
       // The "logger" key exists in the config map: setup logging
 
       hierarchicalLoggingEnabled = true;
-      Logger.root.onRecord.listen((LogRecord r) {
+      Logger.root.onRecord.listen((r) {
         final t = r.time.toUtc();
         stdout.write('$t: ${r.loggerName}: ${r.level.name}: ${r.message}\n');
       });
@@ -118,13 +118,13 @@ class ExampleConfig2 {
 
 class ServerConfig {
   factory ServerConfig(ConfigMap m) {
-    final _host = m.string('host');
-    final _tls = m.boolean('tls', defaultValue: true);
-    final _port =
-        m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
+    final host = m.string('host');
+    final tls = m.boolean('tls', defaultValue: true);
+    final port =
+        m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
     m.unusedKeysCheck();
 
-    return ServerConfig._init(_host, _tls, _port);
+    return ServerConfig._init(host, tls, port);
   }
 
   ServerConfig._init(this.host, this.tls, this.port);
@@ -255,13 +255,12 @@ Future<String?> checkResource(ExampleConfig2 config) async {
   final client = HttpClient();
 
   if (config.ignoreBadCert) {
-    client.badCertificateCallback =
-        ((X509Certificate cert, String host, int port) => true);
+    client.badCertificateCallback = (cert, host, port) => true;
   }
 
   final account = config.account;
   if (account != null) {
-    client.authenticate = (Uri url, String scheme, String? realm) async {
+    client.authenticate = (url, scheme, realm) async {
       if (scheme == account.scheme) {
         late HttpClientCredentials cred;
 
@@ -298,10 +297,11 @@ Future<String?> checkResource(ExampleConfig2 config) async {
       if (cert != null) {
         // TLS server certificate
 
-        _logCert.fine('Server cert subject: ${cert.subject}');
-        _logCert.finest('Server cert issuer: ${cert.issuer}');
-        _logCert.finer('Server cert start validity: ${cert.startValidity}');
-        _logCert.finer('Server cert end validity: ${cert.endValidity}');
+        _logCert
+          ..fine('Server cert subject: ${cert.subject}')
+          ..finest('Server cert issuer: ${cert.issuer}')
+          ..finer('Server cert start validity: ${cert.startValidity}')
+          ..finer('Server cert end validity: ${cert.endValidity}');
 
         // Produce alert if will expire soon (or has already expired)
 
@@ -383,8 +383,9 @@ Future<void> main(List<String> args) async {
 
   final errorMessage = await checkResource(config);
 
-  _logApp.fine('result: $errorMessage');
-  _logApp.finer('end');
+  _logApp
+    ..fine('result: $errorMessage')
+    ..finer('end');
 
   if (errorMessage == null) {
     stdout.write('${config.name}: ok\n');
@@ -405,16 +406,14 @@ Future<void> main(List<String> args) async {
 /// log entries are outputted.
 
 void logConfig(String configFilename, ExampleConfig2 config) {
-  _logConfig.config('config file: "$configFilename"');
-
-  _logConfig.fine('name="${config.name}"');
-  _logConfig.finer('description="${config.desc}"');
-
-  _logConfig.finest('server host: ${config.server.host}');
-  _logConfig.finest('server port: ${config.server.port}');
-  _logConfig.finest('server TLS: ${config.server.tls}');
-
-  _logConfig.info('minimum days to expiry: ${config.minDaysToExpiry}');
+  _logConfig
+    ..config('config file: "$configFilename"')
+    ..fine('name="${config.name}"')
+    ..finer('description="${config.desc}"')
+    ..finest('server host: ${config.server.host}')
+    ..finest('server port: ${config.server.port}')
+    ..finest('server TLS: ${config.server.tls}')
+    ..info('minimum days to expiry: ${config.minDaysToExpiry}');
 
   if (config.pathSegments != null) {
     _logConfig.finest('path segments: ${config.pathSegments}');

@@ -9,7 +9,7 @@ part of strict_config;
 ///
 /// Using this class involves:
 ///
-/// - Using the [LoggerConfig.LoggerConfig] constructor
+/// - Using the [LoggerConfig] constructor
 ///   (or the [optional] convenience method) to create
 ///   a _LoggerConfig_ from a _config map_; and
 /// - Invoking the [applyLevels] method to use the levels in it.
@@ -31,7 +31,7 @@ part of strict_config;
 /// ## Details
 ///
 /// Since logs are usually optional, it is usually represented as an optional
-/// config map. If the config map exists, use the [LoggerConfig.LoggerConfig]
+/// config map. If the config map exists, use the [LoggerConfig]
 /// constructor to extract the levels from it.
 ///
 /// ```
@@ -106,6 +106,7 @@ class LoggerConfig {
 
         try {
           level = Level.LEVELS.firstWhere((x) => x.name == name);
+          // ignore: avoid_catching_errors
         } on StateError {
           throw ConfigExceptionValue(
               'level unknown ("$name")', map.path, k, name);

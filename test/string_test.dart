@@ -5,12 +5,13 @@ import 'package:test/test.dart';
 
 const name = 'string_example';
 
+// ignore: avoid_positional_boolean_parameters
 String callString(ConfigMap cfg, bool kws, bool ab, bool ae) =>
     cfg.string(name, keepWhitespace: kws, allowBlank: ab, allowEmpty: ae);
 
-final callingTheString = callString; // alias with long name so code line up
+const callingTheString = callString; // alias with long name so code line up
 
-final rejected = throwsA(TypeMatcher<ConfigExceptionValue>());
+final rejected = throwsA(const TypeMatcher<ConfigExceptionValue>());
 
 const cleanW = false; // default
 const keepWS = true;
@@ -39,7 +40,7 @@ void main() {
       expect(cfg.stringOptional(name), isNull);
       expect(cfg.string(name, defaultValue: 'default'), equals('default'));
       expect(() => cfg.string(name),
-          throwsA(TypeMatcher<ConfigExceptionKeyMissing>()));
+          throwsA(const TypeMatcher<ConfigExceptionKeyMissing>()));
     });
   });
 
@@ -65,11 +66,13 @@ void main() {
 
     for (final input in ['  x y \t', '\t x \t y', 'x\ty  ', 'x \t y']) {
       group('input with extra whitespace', () {
-        assert(input.startsWith(' ') ||
-            input.startsWith('\t') ||
-            input.endsWith(' ') ||
-            input.endsWith('\t') ||
-            RegExp(r'[ \t\n\r]{2}').hasMatch(input));
+        assert(
+            input.startsWith(' ') ||
+                input.startsWith('\t') ||
+                input.endsWith(' ') ||
+                input.endsWith('\t') ||
+                RegExp(r'[ \t\n\r]{2}').hasMatch(input),
+            'bad');
 
         final cf = ConfigMap('$name: "$input"');
 
@@ -91,8 +94,8 @@ void main() {
 
     for (final blk in ['\u0020', '\u0020\u0020', '\t', '\t\t', '\t\u0020\t']) {
       group('input blank', () {
-        assert(blk.isNotEmpty);
-        assert(RegExp(r'^[ \t]+').hasMatch(blk));
+        assert(blk.isNotEmpty, 'bad');
+        assert(RegExp(r'^[ \t]+').hasMatch(blk), 'bad');
 
         final cfg = ConfigMap('$name: "$blk"');
 
@@ -114,7 +117,7 @@ void main() {
 
     const emptyString = '';
     group('input empty "$emptyString"', () {
-      assert(emptyString.isEmpty);
+      assert(emptyString.isEmpty, 'bad');
 
       final cfg = ConfigMap('$name: "$emptyString"');
 
@@ -172,10 +175,9 @@ void main() {
         // it is rejected since allowEmpty is false.
         // It does not make sense to put empty strings in the permitted values.
         final cfg1 = ConfigMap('$name: ""');
-        expect(
-            () => cfg1.string(name,
-                permitted: goodValuesWithEmptyAndTab, allowEmpty: false),
+        expect(() => cfg1.string(name, permitted: goodValuesWithEmptyAndTab),
             rejected);
+        // allowEmpty: false
       });
 
       test('allowBlank overrides', () {
@@ -183,10 +185,9 @@ void main() {
         // permitted values, it is rejected since allowBlank is false.
         // It does not make sense to put blank strings in the permitted values.
         final cfg1 = ConfigMap('$name: "\t"');
-        expect(
-            () => cfg1.string(name,
-                permitted: goodValuesWithEmptyAndTab, allowBlank: false),
+        expect(() => cfg1.string(name, permitted: goodValuesWithEmptyAndTab),
             rejected);
+        // allowBlank: false
       });
     });
   });

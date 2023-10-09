@@ -21,13 +21,13 @@ void main() {
     test('empty list: allowEmpty=false', () {
       final cfg = ConfigMap('x: []');
       expect(() => cfg.integers('x', allowEmptyList: false),
-          throwsA(TypeMatcher<ConfigExceptionValueEmptyList>()));
+          throwsA(const TypeMatcher<ConfigExceptionValueEmptyList>()));
     });
 
     test('mixed member type rejected', () {
       final cfg = ConfigMap('x: [42, "not an integer"]');
       expect(() => cfg.integers('x', allowEmptyList: false),
-          throwsA(TypeMatcher<ConfigExceptionValue>()));
+          throwsA(const TypeMatcher<ConfigExceptionValue>()));
     });
   });
 
@@ -41,7 +41,7 @@ void main() {
     test('out of range: $num', () {
       final cfg = ConfigMap('x: [32, 33, 211, -459]');
       expect(() => cfg.integers('x', min: 32, max: 212),
-          throwsA(TypeMatcher<ConfigExceptionValue>()));
+          throwsA(const TypeMatcher<ConfigExceptionValue>()));
     });
   });
 }

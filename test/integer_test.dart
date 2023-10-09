@@ -3,7 +3,7 @@ import 'package:test/test.dart';
 
 //================================================================
 
-final badValue = throwsA(TypeMatcher<ConfigExceptionValue>());
+final badValue = throwsA(const TypeMatcher<ConfigExceptionValue>());
 
 //================================================================
 

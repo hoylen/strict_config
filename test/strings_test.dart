@@ -21,17 +21,17 @@ void main() {
     test('empty list: allowEmptyList=false', () {
       final cfg = ConfigMap('x: []');
       expect(() => cfg.strings('x', allowEmptyList: false),
-          throwsA(TypeMatcher<ConfigExceptionValueEmptyList>()));
+          throwsA(const TypeMatcher<ConfigExceptionValueEmptyList>()));
     });
 
     test('mixed member type rejected', () {
       final cfg = ConfigMap('x: ["foo", 42]');
       expect(() => cfg.strings('x', allowEmptyList: false),
-          throwsA(TypeMatcher<ConfigExceptionValue>()));
+          throwsA(const TypeMatcher<ConfigExceptionValue>()));
     });
   });
 
-  // TODO: add tests using keepWhitespace, allowEmpty and allowBlank
+  // TODO(any): add tests using keepWhitespace, allowEmpty and allowBlank
 
   group('permitted', () {
     const goodValues = ['foo', 'bar', 'baz'];
@@ -45,7 +45,7 @@ void main() {
     test('incorrect', () {
       final cfg = ConfigMap('x: [foo, something-unexpected, baz]');
       expect(() => cfg.strings('x', permitted: goodValues),
-          throwsA(TypeMatcher<ConfigExceptionValue>()));
+          throwsA(const TypeMatcher<ConfigExceptionValue>()));
     });
   });
 }

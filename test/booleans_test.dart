@@ -24,13 +24,13 @@ void main() {
     test('empty list: allowEmpty=false', () {
       final cfg = ConfigMap('x: []');
       expect(() => cfg.booleans('x', allowEmptyList: false),
-          throwsA(TypeMatcher<ConfigExceptionValueEmptyList>()));
+          throwsA(const TypeMatcher<ConfigExceptionValueEmptyList>()));
     });
 
     test('mixed member type rejected', () {
       final cfg = ConfigMap('x: [true, "not a boolean"]');
       expect(() => cfg.integers('x', allowEmptyList: false),
-          throwsA(TypeMatcher<ConfigExceptionValue>()));
+          throwsA(const TypeMatcher<ConfigExceptionValue>()));
     });
   });
 }

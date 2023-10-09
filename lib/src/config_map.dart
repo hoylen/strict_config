@@ -123,7 +123,7 @@ class ConfigMap {
   //----------------------------------------------------------------
   /// Constructor for internal use only.
   ///
-  /// Used by [configMap] and [configMapList] to convert a YAML map into a
+  /// Used by [ConfigMap.map] and [ConfigMap.maps] to convert a YAML map into a
   /// [ConfigMap].
 
   ConfigMap._fromYamlMap(this.path, this._yamlMap);
@@ -214,11 +214,9 @@ class ConfigMap {
   /// exist.
   ///
   /// See [boolean] for more details.
-  ///
-  /// Note: this will return `bool?` once non-nullable Dart is available.
 
   bool? booleanOptional(String key) =>
-      _boolean(key, optional: true, defaultValue: null);
+      _boolean(key, optional: true); // defaultValue: null
 
   //----------------
   /// Internal implementation for [boolean] and [booleanOptional].
@@ -226,12 +224,12 @@ class ConfigMap {
   bool? _boolean(String key, {required bool optional, bool? defaultValue}) {
     _used.add(key);
 
-    final _value = _yamlMap[key];
-    if (_value is bool) {
-      return _value;
-    } else if (_value == null) {
+    final value = _yamlMap[key];
+    if (value is bool) {
+      return value;
+    } else if (value == null) {
       if (defaultValue != null) {
-        assert(!optional);
+        assert(!optional, 'mandatory, so should not need to use defaultValue');
         return defaultValue;
       } else if (optional) {
         return null;
@@ -239,7 +237,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('not true or false', key, _value);
+      throw _valueException('not true or false', key, value);
     }
   }
 
@@ -278,8 +276,6 @@ class ConfigMap {
   /// exist.
   ///
   /// See [integer] for more details.
-  ///
-  /// Note: this will return `int?` once non-nullable Dart is available.
 
   int? integerOptional(String key, {int? min, int? max}) =>
       _integer(key, min: min, max: max, optional: true);
@@ -302,19 +298,19 @@ class ConfigMap {
           'default value out of range (maximum is $max)', key, defaultValue);
     }
 
-    final _value = _yamlMap[key];
+    final value = _yamlMap[key];
 
-    if (_value is int) {
-      if (min != null && _value < min) {
-        throw _valueException('out of range (minimum is $min)', key, _value);
+    if (value is int) {
+      if (min != null && value < min) {
+        throw _valueException('out of range (minimum is $min)', key, value);
       }
-      if (max != null && max < _value) {
-        throw _valueException('out of range (maximum is $max)', key, _value);
+      if (max != null && max < value) {
+        throw _valueException('out of range (maximum is $max)', key, value);
       }
-      return _value;
-    } else if (_value == null) {
+      return value;
+    } else if (value == null) {
       if (defaultValue != null) {
-        assert(!optional);
+        assert(!optional, 'mandatory, so should not need to use defaultValue');
         return defaultValue;
       } else if (optional) {
         return null;
@@ -322,7 +318,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not an integer', key, _value);
+      throw _valueException('value is not an integer', key, value);
     }
   }
 
@@ -363,7 +359,7 @@ class ConfigMap {
   /// Tidying up of whitespace can be disabled by setting [keepWhitespace] to
   /// true. The default is false.
   ///
-  /// If [allowedEmpty] is true, zero length strings are permitted. The default
+  /// If [allowEmpty] is true, zero length strings are permitted. The default
   /// is false.
   ///
   /// If [allowBlank] is true and _keepWhitespace_ is true, values consisting
@@ -411,8 +407,6 @@ class ConfigMap {
   /// exist.
   ///
   /// See [string] for more details.
-  ///
-  /// Note: this will return `String?` once non-nullable Dart is available.
 
   String? stringOptional(String key,
           {bool keepWhitespace = false,
@@ -433,8 +427,8 @@ class ConfigMap {
       {required bool keepWhitespace,
       required bool allowEmpty,
       required bool allowBlank,
-      Iterable<String>? permitted,
       required bool optional,
+      Iterable<String>? permitted,
       String? defaultValue}) {
     _used.add(key);
 
@@ -451,18 +445,18 @@ class ConfigMap {
           'permitted values cannot be used with keepWhitespace', key);
     }
 
-    final _rawValue = _yamlMap[key];
+    final rawValue = _yamlMap[key];
 
-    if (_rawValue is String) {
-      return _checkedString(key, _rawValue, permitted,
+    if (rawValue is String) {
+      return _checkedString(key, rawValue, permitted,
           keepWhitespace: keepWhitespace,
           allowEmpty: allowEmpty,
           allowBlank: allowBlank);
-    } else if (_rawValue == null) {
+    } else if (rawValue == null) {
       // Missing
 
       if (defaultValue != null) {
-        assert(!optional);
+        assert(!optional, 'mandatory, so should not need to use defaultValue');
         return defaultValue;
       } else if (optional) {
         return null;
@@ -470,7 +464,7 @@ class ConfigMap {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not string', key, _rawValue);
+      throw _valueException('value is not string', key, rawValue);
     }
   }
 
@@ -545,8 +539,6 @@ class ConfigMap {
   /// exist.
   ///
   /// See [map] for more details.
-  ///
-  /// Note: this will return `ConfigMap?` once non-nullable Dart is available.
 
   ConfigMap? mapOptional(String key) => _map(key, optional: true);
 
@@ -556,17 +548,17 @@ class ConfigMap {
   ConfigMap? _map(String key, {required bool optional}) {
     _used.add(key);
 
-    final _value = _yamlMap[key];
-    if (_value is YamlMap) {
-      return ConfigMap._fromYamlMap(key, _value);
-    } else if (_value == null) {
+    final value = _yamlMap[key];
+    if (value is YamlMap) {
+      return ConfigMap._fromYamlMap(key, value);
+    } else if (value == null) {
       if (optional) {
         return null;
       } else {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a map', key, _value);
+      throw _valueException('value is not a map', key, value);
     }
   }
 
@@ -595,8 +587,6 @@ class ConfigMap {
   /// key must always exist.
   ///
   /// See [booleans] for more details.
-  ///
-  /// Note: this will return `List<bool>?` once non-nullable Dart is available.
 
   List<bool>? booleansOptional(String key,
           {int? min, int? max, bool allowEmptyList = true}) =>
@@ -609,12 +599,12 @@ class ConfigMap {
       {required bool optional, required bool allowEmptyList}) {
     _used.add(key);
 
-    final _value = _yamlMap[key];
-    if (_value is YamlList) {
+    final value = _yamlMap[key];
+    if (value is YamlList) {
       final result = <bool>[];
 
       var index = 0;
-      for (final element in _value) {
+      for (final element in value) {
         if (element is bool) {
           result.add(element);
         } else {
@@ -625,18 +615,18 @@ class ConfigMap {
         index++;
       }
 
-      if (result.isEmpty && !(allowEmptyList)) {
+      if (result.isEmpty && !allowEmptyList) {
         throw _valueEmptyListException(key);
       }
       return result;
-    } else if (_value == null) {
+    } else if (value == null) {
       if (optional) {
         return null;
       } else {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value);
+      throw _valueException('value is not a list', key, value);
     }
   }
 
@@ -673,8 +663,6 @@ class ConfigMap {
   /// key must always exist.
   ///
   /// See [integers] for more details.
-  ///
-  /// Note: this will return `List<int>?` once non-nullable Dart is available.
 
   List<int>? integersOptional(String key,
           {int? min, int? max, bool allowEmptyList = true}) =>
@@ -686,17 +674,17 @@ class ConfigMap {
 
   List<int>? _integerList(String key,
       {required bool optional,
+      required bool allowEmptyList,
       int? min,
-      int? max,
-      required bool allowEmptyList}) {
+      int? max}) {
     _used.add(key);
 
-    final _value = _yamlMap[key];
-    if (_value is YamlList) {
+    final value = _yamlMap[key];
+    if (value is YamlList) {
       final result = <int>[];
 
       var index = 0;
-      for (final element in _value) {
+      for (final element in value) {
         final elemPath = '$key[$index]';
 
         if (element is int) {
@@ -716,18 +704,18 @@ class ConfigMap {
         index++;
       }
 
-      if (result.isEmpty && !(allowEmptyList)) {
+      if (result.isEmpty && !allowEmptyList) {
         throw _valueEmptyListException(key);
       }
       return result;
-    } else if (_value == null) {
+    } else if (value == null) {
       if (optional) {
         return null;
       } else {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value);
+      throw _valueException('value is not a list', key, value);
     }
   }
 
@@ -773,8 +761,6 @@ class ConfigMap {
   /// key must always exist.
   ///
   /// See [strings] for more details.
-  ///
-  /// Note: this will return `List<String>?` once non-nullable Dart is available.
 
   List<String>? stringsOptional(String key,
           {bool allowEmptyList = true,
@@ -807,22 +793,22 @@ class ConfigMap {
           'permitted values cannot be used with keepWhitespace', key);
     }
 
-    final _value = _yamlMap[key];
+    final value = _yamlMap[key];
 
-    if (_value is YamlList) {
+    if (value is YamlList) {
       final result = <String>[];
 
       var index = 0;
-      for (final _rawValue in _value) {
-        if (_rawValue is String) {
-          final str = _checkedString('$key[$index]', _rawValue, permitted,
+      for (final rawValue in value) {
+        if (rawValue is String) {
+          final str = _checkedString('$key[$index]', rawValue, permitted,
               keepWhitespace: keepWhitespace,
               allowEmpty: allowEmpty,
               allowBlank: allowBlank);
           result.add(str);
         } else {
           throw _valueException(
-              'member is not a string', '$key[$index]', _rawValue);
+              'member is not a string', '$key[$index]', rawValue);
         }
 
         index++;
@@ -833,14 +819,14 @@ class ConfigMap {
       }
 
       return result;
-    } else if (_value == null) {
+    } else if (value == null) {
       if (optional) {
         return null;
       } else {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value);
+      throw _valueException('value is not a list', key, value);
     }
   }
 
@@ -869,8 +855,6 @@ class ConfigMap {
   /// key must always exist.
   ///
   /// See [maps] for more details.
-  ///
-  /// Note: this will return `List<bool>?` once non-nullable Dart is available.
 
   List<ConfigMap>? mapsOptional(String key, {bool allowEmptyList = true}) =>
       _listMap(key, allowEmptyList: allowEmptyList, optional: true);
@@ -882,12 +866,12 @@ class ConfigMap {
       {required bool optional, required bool allowEmptyList}) {
     _used.add(key);
 
-    final _value = _yamlMap[key];
-    if (_value is YamlList) {
+    final value = _yamlMap[key];
+    if (value is YamlList) {
       final result = <ConfigMap>[];
 
       var index = 0;
-      for (final element in _value) {
+      for (final element in value) {
         final ek = '$key[$index]';
 
         if (element is YamlMap) {
@@ -905,14 +889,14 @@ class ConfigMap {
       }
 
       return result;
-    } else if (_value == null) {
+    } else if (value == null) {
       if (optional) {
         return null;
       } else {
         throw _keyMissingException(key);
       }
     } else {
-      throw _valueException('value is not a list', key, _value);
+      throw _valueException('value is not a list', key, value);
     }
   }
 

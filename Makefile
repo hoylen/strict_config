@@ -14,6 +14,7 @@ help:
 	@echo "  format   - formats Dart code consistantly for check-in"
 	@echo "  doc      - generate code documentation"
 	@echo "  test     - run tests"
+	@echo "  pana     - run pana"
 	@echo
 	@echo "  clean    - deletes the ${DOC_DIR} directory"
 
@@ -27,7 +28,7 @@ format:
 # Tests
 
 test:
-	pub run test
+	dart run test
 
 #----------------------------------------------------------------
 # Documentation
@@ -35,6 +36,12 @@ test:
 doc:
 	@dart doc --output-dir "${DOC_DIR}" `pwd`
 	@echo "View Dart documentation by opening: ${DOC_DIR}/index.html"
+
+#----------------------------------------------------------------
+# Publishing
+
+pana:
+	dart run pana
 
 #----------------------------------------------------------------
 

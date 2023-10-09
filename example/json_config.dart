@@ -42,7 +42,7 @@ String configToJson(String text) {
 //----------------------------------------------------------------
 
 void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
-  out.write('\{\n');
+  out.write('{\n');
 
   final keys = cfg.keys();
 
@@ -79,7 +79,8 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.booleans:
           out.write('[ ');
           var first = true;
-          for (final element in cfg.booleans(k, allowEmptyList: true)) {
+          for (final element in cfg.booleans(k)) {
+            // allowEmptyList: true
             if (first) {
               first = false;
             } else {
@@ -93,7 +94,8 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.integers:
           out.write('[ ');
           var first = true;
-          for (final element in cfg.integers(k, allowEmptyList: true)) {
+          for (final element in cfg.integers(k)) {
+            // allowEmptyList: true
             if (first) {
               first = false;
             } else {
@@ -108,10 +110,8 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
           out.write('[ ');
           var first = true;
           for (final element in cfg.strings(k,
-              allowEmptyList: true,
-              keepWhitespace: true,
-              allowEmpty: true,
-              allowBlank: true)) {
+              keepWhitespace: true, allowEmpty: true, allowBlank: true)) {
+            // allowEmptyList: true
             if (first) {
               first = false;
             } else {
@@ -125,7 +125,8 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
         case ConfigType.maps:
           out.write('[');
           var first = true;
-          for (final element in cfg.maps(k, allowEmptyList: true)) {
+          for (final element in cfg.maps(k)) {
+            // allowEmptyList: true
             if (first) {
               first = false;
               out.write('\n');
@@ -149,8 +150,7 @@ void configMapToJson(ConfigMap cfg, StringSink out, {int level = 1}) {
     }
   }
 
-  out.write(_indent * (level - 1));
-  out.write('\}');
+  out.write('${_indent * (level - 1)}}'); // indentation followed by a '}'
 }
 
 //----------------------------------------------------------------
@@ -159,7 +159,7 @@ String jsonString(String str) {
   final encoded = str
       .replaceAll('"', r'\"')
       .replaceAll(r'\', r'\\')
-      .replaceAll(r'/', r'\/')
+      .replaceAll('/', r'\/')
       .replaceAll('\b', r'\b')
       .replaceAll('\f', r'\f')
       .replaceAll('\n', r'\n')
@@ -216,14 +216,14 @@ void jsonObjectToConfig(Map<String, dynamic> m, StringSink out,
     count++;
     final value = m[k];
 
-    out.write((topLevel && value is Map && !previousWasMap) ? '\n' : '');
-
-    out.write('${_indent * level}${yamlString(k)}: '); // name
+    out
+      ..write((topLevel && value is Map && !previousWasMap) ? '\n' : '')
+      ..write('${_indent * level}${yamlString(k)}: '); // name
     jsonValueToConfig(value, out, level);
 
-    out.write((topLevel && value is Map) ? '\n' : '');
-
-    out.write((count != keys.length) ? '\n' : '');
+    out
+      ..write((topLevel && value is Map) ? '\n' : '')
+      ..write((count != keys.length) ? '\n' : '');
 
     previousWasMap = value is Map;
   }
@@ -240,7 +240,7 @@ void jsonValueToConfig(Object value, StringSink out, int level) {
     out.write(yamlString(value));
   } else if (value is Map<String, dynamic>) {
     jsonObjectToConfig(value, out, level: level + 1);
-  } else if (value is List) {
+  } else if (value is List<dynamic>) {
     if (value.isEmpty) {
       out.write('[]'); // empty list
     } else {
@@ -273,7 +273,7 @@ String yamlString(String str, {bool alwaysQuote = false}) {
   final encoded = str
       .replaceAll('"', r'\"')
       .replaceAll(r'\', r'\\')
-      .replaceAll(r'/', r'\/')
+      .replaceAll('/', r'\/')
       .replaceAll('\b', r'\b')
       .replaceAll('\f', r'\f')
       .replaceAll('\n', r'\n')
@@ -284,9 +284,12 @@ String yamlString(String str, {bool alwaysQuote = false}) {
   return quote ? '"$encoded"' : encoded;
 }
 
-void _checkListIsUniform(List list) {
-  final type = list.first.runtimeType;
+void _checkListIsUniform(List<dynamic> list) {
+  assert(list.isNotEmpty, '_checkListIsUniform: list is empty');
+  // ignore: avoid_dynamic_calls
+  final type = list.first.runtimeType; // get the type of the first member
 
+  // Check all the members are the same type as the first
   for (final element in list) {
     if (element.runtimeType != type) {
       throw NotRepresentableAsConfig('list has mixed types');

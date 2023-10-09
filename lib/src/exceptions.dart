@@ -81,12 +81,12 @@ class ConfigExceptionValue extends ConfigExceptionKey {
 
     final v = value;
     if (v is String) {
-      var str = v
-          .replaceAll('\\', '\\\\')
-          .replaceAll('\t', '\\t')
-          .replaceAll('\n', '\\n')
-          .replaceAll('\r', '\\r')
-          .replaceAll('"', '\\"');
+      final str = v
+          .replaceAll(r'\', r'\\')
+          .replaceAll('\t', r'\t')
+          .replaceAll('\n', r'\n')
+          .replaceAll('\r', r'\r')
+          .replaceAll('"', r'\"');
       text = ': "$str"';
     } else if (v != null) {
       text = ': $v';

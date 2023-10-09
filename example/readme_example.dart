@@ -19,13 +19,13 @@ class ExampleConfig {
 
 class ServerConfig {
   factory ServerConfig(ConfigMap m) {
-    final _host = m.string('host');
-    final _tls = m.boolean('tls', defaultValue: true);
-    final _port =
-        m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
+    final host = m.string('host');
+    final tls = m.boolean('tls', defaultValue: true);
+    final port =
+        m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
     m.unusedKeysCheck();
 
-    return ServerConfig._init(_host, _tls, _port);
+    return ServerConfig._init(host, tls, port);
   }
 
   ServerConfig._init(this.host, this.tls, this.port);
@@ -43,13 +43,14 @@ void main(List<String> args) {
 
     final config = ExampleConfig(ConfigMap(text));
 
-    print('Name: ${config.name}');
+    stdout.writeln('Name: ${config.name}');
     if (config.desc != null) {
-      print('Description: ${config.desc}');
+      stdout.writeln('Description: ${config.desc}');
     }
-    print('Host: ${config.server.host}');
-    print('TLS: ${config.server.tls}');
-    print('Port: ${config.server.port}');
+    stdout
+      ..writeln('Host: ${config.server.host}')
+      ..writeln('TLS: ${config.server.tls}')
+      ..writeln('Port: ${config.server.port}');
 
     exit(0);
   } on ConfigException catch (e) {

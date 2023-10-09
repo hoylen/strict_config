@@ -3,9 +3,9 @@ import 'package:test/test.dart';
 
 //================================================================
 
-final badFormat = throwsA(TypeMatcher<ConfigExceptionFormat>());
+final badFormat = throwsA(const TypeMatcher<ConfigExceptionFormat>());
 
-final missingKey = throwsA(TypeMatcher<ConfigExceptionKeyMissing>());
+final missingKey = throwsA(const TypeMatcher<ConfigExceptionKeyMissing>());
 
 //================================================================
 
@@ -29,9 +29,9 @@ void main() {
 
         // These are the two methods that cause all the keys to be examined.
 
-        expect(() => cfg.keys(), badFormat);
+        expect(cfg.keys, badFormat);
 
-        expect(() => cfg.unusedKeysCheck(), badFormat);
+        expect(cfg.unusedKeysCheck, badFormat);
       }
     });
 

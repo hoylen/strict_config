@@ -1,3 +1,8 @@
+## 2.1.1
+
+- Replaced pedantic package with lints package.
+- Fixed code to remove lint warnings.
+
 ## 2.1.0
 
 - Improved values in String produced by ConfigExceptionValue.toString().

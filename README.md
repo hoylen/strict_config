@@ -52,13 +52,13 @@ class ExampleConfig {
 
 class ServerConfig {
   factory ServerConfig(ConfigMap m) {
-    final _host = m.string('host');
-    final _tls = m.boolean('tls', defaultValue: true);
-    final _port =
-        m.integer('port', min: 1, max: 65535, defaultValue: _tls ? 443 : 80);
+    final host = m.string('host');
+    final tls = m.boolean('tls', defaultValue: true);
+    final port =
+        m.integer('port', min: 1, max: 65535, defaultValue: tls ? 443 : 80);
     m.unusedKeysCheck();
 
-    return ServerConfig._init(_host, _tls, _port);
+    return ServerConfig._init(host, tls, port);
   }
 
   ServerConfig._init(this.host, this.tls, this.port);
